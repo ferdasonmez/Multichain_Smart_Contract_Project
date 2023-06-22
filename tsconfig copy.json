@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "storage-layout": true,
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "typeRoots": ["@types", "node_modules/@types"],
+    "declarationMap": true,
+    "sourceMap": true,    
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "rootDirs": ["./contracts", "./scripts", "./test"],
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["dist", "node_modules"],
+  "include": ["./test", "./src", "./scripts"],
+  "files": ["./hardhat.config.ts"]
+}
+
+
