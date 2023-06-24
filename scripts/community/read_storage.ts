@@ -140,7 +140,7 @@ wsClient.onclose = () => {
 
 
 
-wsClient.onmessage = async (message) => {
+wsClient.onmessage = async (message: { data: string; }) => {
   //console.log('Alınan mesaj:', message.data);
   const response = JSON.parse(message.data);
   if(response.result && response.result != "0x0000000000000000000000000000000000000000000000000000000000000000")
@@ -239,8 +239,8 @@ wsClient.onmessage = async (message) => {
 
     
     index = '0000000000000000000000000000000000000000000000000000000000000004';
-    newKey =  web3.utils.sha3(communityDataStorageId + index, {"encoding":"hex"})
-    newKey =  web3.utils.sha3(communityDataStorageId + 4, {"encoding":"hex"})
+    newKey =  web3.utils.sha3(communityDataStorageId + index)
+    newKey =  web3.utils.sha3(communityDataStorageId + 4)
     newKey = web3.utils.keccak256(communityDataStorageId + index);
     getDetailedStorageRequest = {
       jsonrpc: "2.0",
@@ -252,12 +252,6 @@ wsClient.onmessage = async (message) => {
    //console.log("WSClient Sent getDetailedStorageRequest:", getDetailedStorageRequest);
 
   }
-
-
-
-
-  
-
   
 };
 
@@ -265,7 +259,7 @@ wsClient.onclose = () => {
   console.log('WebSocket sunucusundan bağlantı kesildi');
 };
 
-wsClient.onerror = (error) => {
+wsClient.onerror = (error: any) => {
   console.error('WebSocket error:', error);
 };
 
@@ -433,7 +427,7 @@ const processLogs = () => {
   console.log("Processing logs");
 };
 
-const delay = (ms) => {
+const delay = (ms: number | undefined) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
