@@ -2,10 +2,16 @@
 pragma solidity ^0.8.0;
 
 interface IUtilityImpl {
+    enum VoteCostType {
+        Free,
+        OneTokenPerVote,
+        SameAsVoteAmount
+    }
+
     struct VotingStructure {
-        string[] voteCategoryNames;
-        uint256 voteInputType;
-        uint256 voteCostType;
+        string[] voteCategoryNames; // Commented out as per your request
+        VoteCostType voteCostType;
+        address tokenAddress;
         uint256 lowerLimit;
         uint256 upperLimit;
     }
@@ -49,13 +55,13 @@ interface IUtilityImpl {
         string[] tags;
     }
 
-    struct CommunityData {
+    /*struct CommunityData {
         uint256 id;
         string name;
         AccountChainPair[] members;
         mapping(uint256 => uint256) chainWeights; //chainId =>chainweight
         mapping(bytes => uint256) chainProposalWeights; //keccak (chainId + proposalId) =>chainProposalweight
-    }
+    }*/
 
     struct TransferData {
         address sender;

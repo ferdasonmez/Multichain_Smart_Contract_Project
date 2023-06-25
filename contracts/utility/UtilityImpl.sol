@@ -6,7 +6,7 @@ import "../storage/IHasUpgradableEternalStorage.sol";
 import { IUtilityImpl as MyIUtilityImpl } from "./IUtilityImpl.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 //import "dotenv";
-require('dotenv').config();
+
 //import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 //import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -14,12 +14,13 @@ require('dotenv').config();
 contract UtilityImpl is OwnableUpgradeable, MyIUtilityImpl {
 
     enum VotingTypes {
-        YesNoVoting,
+        YesNoVotingType,
         YesNoOneTokenPerVote,
         NumericRangeFree,
         NumericRangeSameAsVoteAmount,
         LimitlessSameAsVoteAmount
     }
+
 
     mapping(uint => VotingStructure) public votingTypeVotingStructure; //VotingType to VotingStructure
     mapping(uint => string) public chainNames; //chainId to chainName
@@ -29,11 +30,13 @@ contract UtilityImpl is OwnableUpgradeable, MyIUtilityImpl {
 
     mapping(chainNamesEnum => uint) public chainEnumToIds;
     mapping(chainNamesEnum => string) public chainEnumToChainName;
-
     uint NUMBEROFVOTINGSTRUCTURES = 5; 
     function initializeVotingStructures() internal {
     // Initialize Yes/No Voting Structure
-    VotingStructure memory yesNoVotingStructure = VotingStructure(
+    string[] memory yesNoCategories = new string[](2);
+    yesNoCategories[0] = "No";
+    yesNoCategories[1] = "Yes";
+    VotingStructure memory yesNoVotingStructure = VotingStructure(yesNoCategories, 
         VoteCostType.Free,
         address(0), // Address of the token, set to zero address for free voting
         0,
@@ -42,50 +45,71 @@ contract UtilityImpl is OwnableUpgradeable, MyIUtilityImpl {
     votingTypeVotingStructure[uint(VotingTypes.YesNoVotingType)] = yesNoVotingStructure;
 
     // Initialize Yes/No Voting Structure with One Token per Vote
-    VotingStructure memory yesNoOneTokenVotingStructure = VotingStructure(
+    VotingStructure memory yesNoOneTokenVotingStructure = VotingStructure(yesNoCategories, 
         VoteCostType.OneTokenPerVote,
         address(this), // Set the token address for one token per vote
         0,
         1
     );
-    votingTypeVotingStructure[uint(VotingTypes.SecondType)] = yesNoOneTokenVotingStructure;
+    votingTypeVotingStructure[uint(VotingTypes.YesNoOneTokenPerVote)] = yesNoOneTokenVotingStructure;
+
+    string[] memory oneToTenVotingCategoryNames = new string[](10);
+    oneToTenVotingCategoryNames[0] = "One";
+    oneToTenVotingCategoryNames[1] = "Two";
+    oneToTenVotingCategoryNames[2] = "Three";
+    oneToTenVotingCategoryNames[3] = "Four";
+    oneToTenVotingCategoryNames[4] = "Five";
+    oneToTenVotingCategoryNames[5] = "Six";
+    oneToTenVotingCategoryNames[6] = "Seven";
+    oneToTenVotingCategoryNames[7] = "Eight";
+    oneToTenVotingCategoryNames[8] = "Nine";
+    oneToTenVotingCategoryNames[9] = "Ten";    
 
     // Initialize Numeric Range Voting Structure (1 to 10) with Free Voting
-    VotingStructure memory numericRangeFreeVotingStructure = VotingStructure(
+    VotingStructure memory numericRangeFreeVotingStructure = VotingStructure(oneToTenVotingCategoryNames, 
         VoteCostType.Free,
         address(0), // Address of the token, set to zero address for free voting
         1,
         10
     );
-    votingTypeVotingStructure[uint(VotingTypes.ThirdType)] = numericRangeFreeVotingStructure;
+    votingTypeVotingStructure[uint(VotingTypes.NumericRangeFree)] = numericRangeFreeVotingStructure;
 
     // Initialize Numeric Range Voting Structure (1 to 10) with Same as Vote Amount
-    VotingStructure memory numericRangeSameAmountVotingStructure = VotingStructure(
+    VotingStructure memory numericRangeSameAmountVotingStructure = VotingStructure(oneToTenVotingCategoryNames, 
         VoteCostType.SameAsVoteAmount,
         address(this), // Set the token address for same as vote amount
         1,
         10
     );
-    votingTypeVotingStructure[4] = numericRangeSameAmountVotingStructure;
+    votingTypeVotingStructure[uint(VotingTypes.NumericRangeSameAsVoteAmount)] = numericRangeSameAmountVotingStructure;
 
+    string[] memory oneValueCategoryNames = new string[](1);
+    oneValueCategoryNames[0] = "Vote_Val";
     // Initialize Limitless Voting Structure with Same as Vote Amount
-    VotingStructure memory limitlessSameAmountVotingStructure = VotingStructure(
+    VotingStructure memory limitlessSameAmountVotingStructure = VotingStructure(oneValueCategoryNames,
         VoteCostType.SameAsVoteAmount,
         address(this), // Set the token address for same as vote amount
         0,
         0 // No upper limit
     );
-    votingTypeVotingStructure[5] = limitlessSameAmountVotingStructure;
+    votingTypeVotingStructure[uint(VotingTypes.LimitlessSameAsVoteAmount)] = limitlessSameAmountVotingStructure;
 }
 
-    constructor() {
+    constructor(string[] memory chainNamesInput, uint256[] memory chainIds) {
+        require(chainNamesInput.length == chainIds.length, "Array lengths must match");
+    
+        for (uint256 i = 0; i < chainNamesInput.length; i++) {
+            chainEnumToChainName[chainNamesEnum(i)] = chainNamesInput[i];
+            chainNames[i] = chainNamesInput[i];
+            chainEnumToIds[chainNamesEnum(i)] = chainIds[i];
+        }
         // Fill the VotingTypes enum
         // Note: You should only initialize the enum values in the constructor
         // if you know all the possible values ahead of time.
         // If you need to add new enum values at runtime, you should use an upgradeable contract pattern.
 
 
-        chainEnumToChainName[chainNamesEnum.Ethereum_main_network] = "Ethereum main network";
+        /*chainEnumToChainName[chainNamesEnum.Ethereum_main_network] = "Ethereum main network";
         chainEnumToChainName[chainNamesEnum.Ethereum_classic_main_network] = "Ethereum classic main network";
         chainEnumToChainName[chainNamesEnum.Hardhat] = "Hardhat network";
         chainEnumToChainName[chainNamesEnum.Ganache] = "Ganache network";
@@ -95,11 +119,11 @@ contract UtilityImpl is OwnableUpgradeable, MyIUtilityImpl {
 
         chainEnumToIds[chainNamesEnum.Ethereum_main_network] = 1;
         chainEnumToIds[chainNamesEnum.Ethereum_classic_main_network] = 63;
-        chainEnumToIds[chainNamesEnum.Hardhat] = Number(process.env.HARDHAT_CHAINID);
+        chainEnumToIds[chainNamesEnum.Hardhat] = 1338;
         chainEnumToIds[chainNamesEnum.Goerli] = 5;
-        chainEnumToIds[chainNamesEnum.Ganache] = Number(process.env.GANACHE_CHAINID);
+        chainEnumToIds[chainNamesEnum.Ganache] = 1337;
         chainEnumToIds[chainNamesEnum.Palm_testnet] = 11297108099;
-        chainEnumToIds[chainNamesEnum.Aurora_testnet] = 1313161555;
+        chainEnumToIds[chainNamesEnum.Aurora_testnet] = 1313161555;*/
 
 
         initializeVotingStructures();
