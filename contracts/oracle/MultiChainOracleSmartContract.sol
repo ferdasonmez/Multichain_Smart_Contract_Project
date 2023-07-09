@@ -48,55 +48,51 @@ contract MultiChainOracleSmartContract is Initializable {
     }*/
 
     function convertProposalToJson(IUtilityImpl.Proposal storage proposal) internal returns (string memory) {
-        
-         (uint[] memory votingStructureKeys, IUtilityImpl.VotingStructure[] memory votingStructureValues) = utilityImpl.getVotingStructures();
-         //ferda @todo we may need to find the key and use it in values array
-         IUtilityImpl.VotingStructure memory votingStructure = votingStructureValues[proposal.votingType];
+        //(uint[] memory votingStructureKeys, IUtilityImpl.VotingStructure[] memory votingStructureValues) = utilityImpl.getVotingStructures();
+        //IUtilityImpl.VotingStructure memory votingStructure = votingStructureValues[proposal.votingStructureId];
 
-        string[] memory voteCategoryNames = votingStructure.voteCategoryNames;
+        (uint[] memory votingStructureKeys, IUtilityImpl.VotingStructure[] memory votingStructureValues) = utilityImpl.getVotingStructuresById();
         IUtilityImpl.Vote[] memory votes = new IUtilityImpl.Vote[](proposal.numberOfVotes);
-        
-        for(uint i = 0; i < proposal.numberOfVotes; i++) {
+
+        for (uint i = 0; i < proposal.numberOfVotes; i++) {
             votes[i] = proposal.votes[keccak256(abi.encodePacked(proposal.proposingMemberAddress, proposal.proposingMemberChainId, i))];
         }
-        
-    bytes[] memory partBytes = new bytes[](11 + proposal.numberOfVotes * voteCategoryNames.length);
-    uint index;
 
-    partBytes[index++] = bytes('{');
-    partBytes[index++] = bytes('"id":');
-    partBytes[index++] = bytes(uint2str(proposal.id));
-    partBytes[index++] = bytes(',"description":"');
-    partBytes[index++] = bytes(proposal.description);
-    partBytes[index++] = bytes('","proposingMemberAddress":"');
-    partBytes[index++] = bytes(addressToString(proposal.proposingMemberAddress));
-    partBytes[index++] = bytes('","proposingMemberChainId":');
-    partBytes[index++] = bytes(uint2str(proposal.proposingMemberChainId));
-    partBytes[index++] = bytes(',"votingType":');
-    partBytes[index++] = bytes(uint2str(proposal.votingType));
+        bytes[] memory partBytes = new bytes[](11 + proposal.numberOfVotes * votingStructureValues.length);
+        uint index;
 
-    for(uint i = 0; i < proposal.numberOfVotes; i++) {
-        partBytes[index++] = bytes(',"vote');
-        partBytes[index++] = bytes(uint2str(i+1));
-        partBytes[index++] = bytes('":[');
+        partBytes[index++] = bytes('{');
+        partBytes[index++] = bytes('"id":');
+        partBytes[index++] = bytes(uint2str(proposal.id));
+        partBytes[index++] = bytes(',"description":"');
+        partBytes[index++] = bytes(proposal.description);
+        partBytes[index++] = bytes('","proposingMemberAddress":"');
+        partBytes[index++] = bytes(addressToString(proposal.proposingMemberAddress));
+        partBytes[index++] = bytes('","proposingMemberChainId":');
+        partBytes[index++] = bytes(uint2str(proposal.proposingMemberChainId));
+        partBytes[index++] = bytes(',"votingType":');
+        partBytes[index++] = bytes(uint2str(proposal.votingStructureId));
 
-        for(uint j = 0; j < voteCategoryNames.length; j++) {
-            if(j > 0) {
-                partBytes[index++] = bytes(',');
-            }
-            partBytes[index++] = bytes('{"');
-            partBytes[index++] = bytes(voteCategoryNames[j]);
-            partBytes[index++] = bytes('":');
-            partBytes[index++] = bytes(uint2str(votes[i].voteValues[j].voteValue));
+        for (uint i = 0; i < proposal.numberOfVotes; i++) {
+            partBytes[index++] = bytes(',"vote');
+            partBytes[index++] = bytes(uint2str(i + 1));
+            partBytes[index++] = bytes('":[');
+
+            partBytes[index++] = bytes('{"yesVote":');
+            partBytes[index++] = bytes(bool2str(votes[i].yesno));
+            partBytes[index++] = bytes(',"numericValue":');
+            partBytes[index++] = bytes(uint2str(votes[i].numericValue));
             partBytes[index++] = bytes('}');
+
+            partBytes[index++] = bytes(']');
         }
-        partBytes[index++] = bytes(']');
+
+        partBytes[index++] = bytes('}');
+        bytes memory concatenated = concatenate(partBytes);
+        return string(concatenated);
     }
-
-    partBytes[index++] = bytes('}');
-    bytes memory concatenated = concatenate(partBytes);
-    return string(concatenated);
-
+    function bool2str(bool value) internal pure returns (string memory) {
+        return value ? "true" : "false";
     }
     function concatenate(bytes[] memory parts) internal pure returns (bytes memory) {
     uint totalLength = 0;
