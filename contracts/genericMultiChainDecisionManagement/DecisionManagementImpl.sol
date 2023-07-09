@@ -17,40 +17,24 @@ import { OwnableUpgradeable as MyOwnableUpgradeable } from "@openzeppelin/contra
 contract DecisionManagementImpl is MyOwnableUpgradeable, IDecisionManagementImpl {
     IUtilityImpl.Proposal[] proposals;
 
-    IUtilityImpl.CommunityData public community;
-
     UtilityProxy public utilityProxy;
     IUtilityImpl utilityImpl;
 
     constructor(address _utilityProxyAddress) {
-        /*utilityImpl = IUtilityImpl(
-            UtilityProxy(_utilityProxyAddress).implementation()
-            
-        );*/
         UtilityProxy proxy = UtilityProxy(payable(address(_utilityProxyAddress)));
-        //utilityImpl = MyUtilityImpl(address(proxy.implementation)).address;
-        //utilityImpl = address(proxy.implementation);
         
         utilityImpl = IUtilityImpl(address(proxy.implementation.address));
     }
 
-    event ProposalCreated(
-        uint256 proposalId,
-        string description,
-        address proposingMemberAddress,
-        uint256 votingType,
-      /*  IUtilityImpl.VotingStructure votingStructure,*/
-        uint256 startTime,
-        uint256 endTime,
-        address proposalImplementationAddress
-    );
+
 
     event ProposalCreated(
         uint256 indexed proposalId,
         string description,
         address indexed proposingMemberAddress,
         uint proposingMemberChainId,
-        uint decisionManagerCommunityId,
+        uint proposingCommunityId,
+        string proposingCommunityName,
         uint256 proposalBudget,
         uint256 numberOfVotes,
         bool executed,
@@ -64,9 +48,11 @@ contract DecisionManagementImpl is MyOwnableUpgradeable, IDecisionManagementImpl
     );
     function createProposal(
         string memory _description,
+        uint _communityId,
+        string memory _communityName,
         address _proposingMemberAddress,
         uint _proposingMemberChainId,
-        uint256 _votingType,
+        IUtilityImpl.CommunityRestriction _communityRestriction,
         IUtilityImpl.VotingStructure memory _votingStructure,
         uint256 _proposalBudget,
         uint _quorum,
@@ -84,11 +70,12 @@ contract DecisionManagementImpl is MyOwnableUpgradeable, IDecisionManagementImpl
         proposal.description = _description;
         proposal.proposingMemberAddress = _proposingMemberAddress;
         proposal.proposingMemberChainId = _proposingMemberChainId;
-        proposal.decisionManagerCommunityId = community.id;
+        proposal.proposingCommunityId = _communityId;
+        proposal.proposingCommunityName = _communityName;
         proposal.proposalBudget = _proposalBudget;
         proposal.startTime = _startTime;
         proposal.endTime = _endTime;
-        proposal.votingType = _votingType;
+        proposal.votingStructureId = _votingStructure.votingStructureId;
         proposal.quorum = _quorum;
         proposal.proposalImplementationAddress = _proposalImplementationAddress;
         proposal.tags = _tags;
@@ -101,7 +88,8 @@ contract DecisionManagementImpl is MyOwnableUpgradeable, IDecisionManagementImpl
         proposal.description,
         proposal.proposingMemberAddress,
         proposal.proposingMemberChainId,
-        proposal.decisionManagerCommunityId,
+        proposal.proposingCommunityId,
+        proposal.proposingCommunityName,
         proposal.proposalBudget,
         proposal.numberOfVotes,
         proposal.executed,
@@ -109,27 +97,136 @@ contract DecisionManagementImpl is MyOwnableUpgradeable, IDecisionManagementImpl
         proposal.quorum,
         proposal.startTime,
         proposal.endTime,
-        proposal.votingType,
+        proposal.votingStructureId,
         proposal.proposalImplementationAddress,
         proposal.tags
     );
     }
+    mapping(address => bool) private allowedCommunities;
 
-    function vote(
-        uint256 proposalIndex,
-        IUtilityImpl.Vote calldata voteData
-    ) public {
-        IUtilityImpl.Proposal storage proposal = proposals[proposalIndex];
-        uint256 votingType = proposal.votingType;
-         (uint[] memory votingStructureKeys, IUtilityImpl.VotingStructure[] memory votingStructureValues) = utilityImpl.getVotingStructures();
-         //ferda @todo we may need to find the key and use it in values array
-         IUtilityImpl.VotingStructure memory votingStructure = votingStructureValues[proposal.votingType];
+    modifier onlyThroughAllowedCommunities() {
+        require(allowedCommunities[msg.sender], "Caller is not an allowed Community contract");
+        _;
+    }
+
+    function allowCommunity(address communityContract) external onlyOwner {
+        allowedCommunities[communityContract] = true;
+    }
+
+    function disallowCommunity(address communityContract) external onlyOwner {
+        allowedCommunities[communityContract] = false;
+    }
+  function getProposalBasicInfoAndContraintsWithoutVotesById(uint256 proposalId) public view returns (IUtilityImpl.ProposalBasicData memory proposalBasicData) {
+        IUtilityImpl.Proposal storage proposal = proposals[proposalId];
+
+        /*id = proposal.id;
+        description = proposal.description;
+        proposingMemberAddress = proposal.proposingMemberAddress;
+        proposingMemberChainId = proposal.proposingMemberChainId;
+        proposingCommunityId = proposal.proposingCommunityId;
+        proposingCommunityName = proposal.proposingCommunityName;
+        communityRestriction = uint(proposal.communityRestriction);
+        /*numberOfVotes = proposal.numberOfVotes;
+        numberOfYesVotes = proposal.numberOfYesVotes;
+        numberOfNoVotes = proposal.numberOfNoVotes;
+        sumOfYesVotes = proposal.sumOfYesVotes;
+        sumOfNoVotes = proposal.sumOfNoVotes;
+        executed = proposal.executed;
+        passed = proposal.passed;
+        quorum = proposal.quorum;*/
+        /*startTime = proposal.startTime;
+        endTime = proposal.endTime;
+        votingStructureId = proposal.votingStructureId;*/
+        /*proposalBudget = proposal.proposalBudget;
+        proposalImplementationAddress = proposal.proposalImplementationAddress;*/
+        /*tags = proposal.tags;*/
+
+        //IUtilityImpl.ProposalBasicData memory proposalBasicData;
+      
+        proposalBasicData.proposalId = proposal.id;
+        proposalBasicData.description = proposal.description;
+        proposalBasicData.proposingMemberAddress = proposal.proposingMemberAddress;
+        proposalBasicData.proposingMemberChainId = proposal.proposingMemberChainId;
+        proposalBasicData.proposingCommunityId = proposal.proposingCommunityId;
+        proposalBasicData.proposingCommunityName = proposal.proposingCommunityName;
+        proposalBasicData.proposalCommunityRestriction = uint(proposal.communityRestriction);
+        /*numberOfVotes = proposal.numberOfVotes;
+        numberOfYesVotes = proposal.numberOfYesVotes;
+        numberOfNoVotes = proposal.numberOfNoVotes;
+        sumOfYesVotes = proposal.sumOfYesVotes;
+        sumOfNoVotes = proposal.sumOfNoVotes;
+        executed = proposal.executed;
+        passed = proposal.passed;
+        quorum = proposal.quorum;*/
+        proposalBasicData.startTime = proposal.startTime;
+        proposalBasicData.endTime = proposal.endTime;
+        proposalBasicData.votingStructureId = proposal.votingStructureId;
+        /*proposalBudget = proposal.proposalBudget;
+        proposalImplementationAddress = proposal.proposalImplementationAddress;*/
+        proposalBasicData.tags = proposal.tags;
+
+ 
+
+    }
+
+ /*   function getProposalResult(uint256 proposalId) public view returns (
+    uint256 id,
+    uint256 numberOfVotes,
+    uint256 numberOfYesVotes,
+    uint256 numberOfNoVotes,
+    uint256 sumOfYesVotes,
+    uint256 sumOfNoVotes,
+    bool executed,
+    bool passed,
+    uint quorum,
+    uint256 startTime,
+    uint256 endTime,
+    uint256 proposalBudget,
+    address proposalImplementationAddress,
+    string[] memory tags
+) {
+        IUtilityImpl.Proposal storage proposal = proposals[proposalId];
+        
+        id = proposal.id;
+        numberOfVotes = proposal.numberOfVotes;
+        numberOfYesVotes = proposal.numberOfYesVotes;
+        numberOfNoVotes = proposal.numberOfNoVotes;
+        sumOfYesVotes = proposal.sumOfYesVotes;
+        sumOfNoVotes = proposal.sumOfNoVotes;
+        executed = proposal.executed;
+        passed = proposal.passed;
+        quorum = proposal.quorum;
+        startTime = proposal.startTime;
+        endTime = proposal.endTime;
+        proposalBudget = proposal.proposalBudget;
+        proposalImplementationAddress = proposal.proposalImplementationAddress;
+        tags = proposal.tags;
+    }*/
+
+
+
+    function transferVoteCost(IUtilityImpl.Vote memory voteData, uint cost) public returns (bool result) {
+        // Perform the necessary logic here
+        // You can use the provided voteData and cost parameters to implement the transfer
+
+        // Return the result of the transfer
+        return true;
+    }
+    
+    function vote(IUtilityImpl.Vote calldata voteData, uint communityId) public onlyThroughAllowedCommunities {
+        IUtilityImpl.Proposal storage proposal = proposals[voteData.proposalId];
+
+        (uint[] memory votingStructureKeys, IUtilityImpl.VotingStructure[] memory votingStructureValues) = utilityImpl.getVotingStructuresById();
+      
+        IUtilityImpl.VotingStructure memory votingStructure = votingStructureValues[proposal.votingStructureId];
+        require(voteData.numericValue  >= votingStructure.lowerLimit, "Voting value can not be lower than the predefined limit.");
+        require(voteData.numericValue  <= votingStructure.upperLimit, "Voting value can not be higher than the predefined limit.");
 
         // Check if the voter has not already voted on this proposal
         bytes32 voterHash = keccak256(
-            abi.encodePacked(voteData.voterAddress, voteData.voterChainId)
+            abi.encodePacked(voteData.voterAddress, voteData.voterChainId,voteData.proposalId)
         );
-        require(proposal.voted[voterHash] == 0, "Already voted.");
+        require(proposal.voted[voterHash] == 0, "Already voted for this proposal.");
 
         // Check if the proposal is open for voting
         require(
@@ -137,33 +234,32 @@ contract DecisionManagementImpl is MyOwnableUpgradeable, IDecisionManagementImpl
                 block.timestamp <= proposal.endTime,
             "Voting not open."
         );
+        //We need to get the cost for the votes based on voting cost
+        IUtilityImpl.VoteCostType voteCostType = votingStructure.voteCostType;
+        require(voteCostType == IUtilityImpl.VoteCostType.Free ||
+        ((voteCostType == IUtilityImpl.VoteCostType.OneTokenPerVote) && transferVoteCost(voteData, 1)) ||
+        (voteCostType == IUtilityImpl.VoteCostType.SameAsVoteAmount && transferVoteCost(voteData, voteData.numericValue)) ||
+        (voteCostType == IUtilityImpl.VoteCostType.Quadratic && transferVoteCost(voteData, voteData.numericValue * voteData.numericValue)),
+        "Caller is not eligible to pay for the vote cost based on the selected scheme for this proposal."
+    );
+
+
 
         // Record the vote
         proposal.numberOfVotes += 1;
         proposal.votes[voterHash] = voteData;
-
+        if (voteData.yesno){
+            proposal.numberOfYesVotes += 1;
+            proposal.sumOfYesVotes += voteData.numericValue;
+        }else{
+            proposal.numberOfNoVotes += 1;
+            proposal.sumOfNoVotes += voteData.numericValue;
+        }
         proposal.executed = false;
         proposal.passed = false;
     }
 
-    function getProposalResult(uint256 proposalIndex) public {
-        /*  IUtilityImpl.Proposal storage proposal = proposals[proposalIndex];
 
-        // Check if the voter has not already voted on this proposal
-        bytes32 voterHash = keccak256(abi.encodePacked(voteData.voterAddress, voteData.voterChainId));
-        require(proposal.voted[voterHash] == 0, "Already voted.");
-
-        // Check if the proposal is open for voting
-        require( block.timestamp >= proposal.endTime, "Voting not ended.");
-
-
-
-        // Call the off-chain http function to process the votes and update the proposal state
-        // This is just an example implementation and you will need to implement your own off-chain logic here
-        bool voteResult = processVotesOffChain(proposal);
-        proposal.executed = true;
-        proposal.passed = voteResult;*/
-    }
 
     function executeProposal(uint256 proposalIndex) public {
         IUtilityImpl.Proposal storage proposal = proposals[proposalIndex];
