@@ -1,0 +1,17 @@
+Sure, I can help you with a simple and compact frontend design for your project. Here's an example of how you could structure it:
+
+Home page
+Shows a list of communities
+Has a button to create a new community
+Community page
+Shows information about the community, including its name and list of members
+Has a button to create a new proposal
+Proposal page
+Allows a user to create a new proposal for the community
+Includes a description of the proposal and a voting period
+Vote page
+Shows a list of open proposals for the community
+Allows a user to vote on a proposal
+For the frontend, you could use a JavaScript framework like React or Vue.js, and use TypeScript for type safety. You can also use a CSS framework like Bootstrap or Tailwind CSS to make styling the frontend easier.
+
+Here's some example code for the Home page in React:

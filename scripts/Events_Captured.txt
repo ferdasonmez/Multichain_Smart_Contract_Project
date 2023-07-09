@@ -1,0 +1,6 @@
+CommunityContractAddress|ChainID|MemberAdded|CommunityID|MemberAddress|MemberChainID|MemberTags|Status
+0x1234567890abcdef|goerli|MemberAdded|1|0x9876543210fedcba|1|chain,banking,technology|initial
+0x1234567890abcdef|ethereum|MemberAdded|2|0xfedcba9876543210|2|chain,agriculture|processed
+0x1234567890abcdef|palm|MemberRemoved|1|0x9876543210fedcba|1||red
+0x1234567890abcdef|ethereum|MemberAdded|3|0xabcdef1234567890|3|chain,technology|processed
+0x1234567890abcdef|goerli|MemberAdded|4|0xabcdef1234567890|4|chain,health|initial
