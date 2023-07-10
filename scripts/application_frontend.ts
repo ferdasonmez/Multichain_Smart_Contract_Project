@@ -2,8 +2,8 @@ import Web3 from 'web3';
 import { AbiItem} from 'web3-utils';
 import { Contract } from 'web3-eth-contract';
 import { toChecksumAddress } from 'web3-utils';
-import { COMMUNITY_ABI } from '../abi_constants';
-import { HARD_HAT_RPC_URL, PALM_RPC_URL, GANACHE_RPC_URL, GOERLI_RPC_URL, AURORA_RPC_URL, DEFAULT_ACCOUNT } from '../constants';
+import { COMMUNITY_ABI } from './abi_constants';
+import { HARD_HAT_RPC_URL, PALM_RPC_URL, GANACHE_RPC_URL, GOERLI_RPC_URL, AURORA_RPC_URL, DEFAULT_ACCOUNT } from './constants';
 
 import {
   HARD_HAT_COMMUNITY_IMPLEMENTATION_ADDRESS,
@@ -11,7 +11,7 @@ import {
   AURORA_COMMUNITY_IMPLEMENTATION_ADDRESS,
   GANACHE_COMMUNITY_IMPLEMENTATION_ADDRESS,
   GOERLI_COMMUNITY_IMPLEMENTATION_ADDRESS
-} from '../constants';
+} from './constants';
 
 
 
@@ -53,7 +53,7 @@ function getTheAbi () {
 
     const dir = path.resolve(
       __dirname,
-      "../../artifacts/contracts/community/MultiChainCommunity.sol/MultiChainCommunity.json"
+      "./../artifacts/contracts/community/MultiChainCommunity.sol/MultiChainCommunity.json"
     )
     const file = fs.readFileSync(dir, "utf8")
     const json = JSON.parse(file)
