@@ -1,6 +1,13 @@
 import { ethers } from 'hardhat';
 import { UtilityFactory, UtilityProxyFactory, UtilityProxy } from './typechain';
 import { COMMUNITY_NAME, HARD_HAT_UTILITY_PROXY_ADDRESS, HARD_HAT_DECISION_MANAGEMENT_PROXY_ADDRESS, GANACHE_UTILITY_PROXY_ADDRESS, GANACHE_DECISION_MANAGEMENT_PROXY_ADDRESS, GOERLI_UTILITY_PROXY_ADDRESS, GOERLI_DECISION_MANAGEMENT_PROXY_ADDRESS, PALM_UTILITY_PROXY_ADDRESS, PALM_DECISION_MANAGEMENT_PROXY_ADDRESS, AURORA_UTILITY_PROXY_ADDRESS, AURORA_DECISION_MANAGEMENT_PROXY_ADDRESS } from './constants';
+import { SAMPLE_ADDRESS1, SAMPLE_ADDRESS2 } from './constants';
+import { HARD_HAT_STORAGE_1_INDEX, PALM_STORAGE_1_INDEX, AURORA_STORAGE_1_INDEX, GANACHE_STORAGE_1_INDEX, GOERLI_STORAGE_1_INDEX } from './constants';
+import { HARD_HAT_STORAGE_2_INDEX, PALM_STORAGE_2_INDEX, AURORA_STORAGE_2_INDEX, GANACHE_STORAGE_2_INDEX, GOERLI_STORAGE_2_INDEX } from './constants';
+import { HARD_HAT_STORAGE_3_INDEX, PALM_STORAGE_3_INDEX, AURORA_STORAGE_3_INDEX, GANACHE_STORAGE_3_INDEX, GOERLI_STORAGE_3_INDEX } from './constants';  
+
+
+
 import { task } from "hardhat/config";
 
 
@@ -65,6 +72,9 @@ async function main() {
     let decisionManagementProxyAddress = '';
     let chainID =  process.env.HARDHAT_CHAIN_ID;
     let chainName =  process.env.HARDHAT_CHAIN_NAME;
+    let storageIndex1 =  "";
+    let storageIndex2 =  "";
+    let storageIndex3 =  "";
     // Set the proxy addresses based on the network
     if (selected_network === 'hardhat') {
       utilityProxyAddress = HARD_HAT_UTILITY_PROXY_ADDRESS;
@@ -101,8 +111,9 @@ async function main() {
     const communityFactory = (await ethers.getContractFactory(
       'MultiChainCommunity'
     )) as UtilityFactory;
-
-    const community = await communityFactory.deploy(1, COMMUNITY_NAME, utilityProxyAddress, decisionManagementProxyAddress, ethers.constants.AddressZero, 0, ["tag4", "tag5", "tag6"], chainID, chainName);
+    console.log('Sample address 1 is ', SAMPLE_ADDRESS1);
+    console.log('Sample address 2 is ', SAMPLE_ADDRESS2);
+    const community = await communityFactory.deploy(1, COMMUNITY_NAME, utilityProxyAddress, decisionManagementProxyAddress, ethers.constants.AddressZero, 0, ["tag4", "tag5", "tag6"], "tag4, tag5, tag6", chainID, chainName, SAMPLE_ADDRESS1, SAMPLE_ADDRESS2);
 
     console.log('Community contract address for community ' + COMMUNITY_NAME + ':', community.address);
     try {

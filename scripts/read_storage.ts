@@ -121,7 +121,7 @@ const filter = {
 
   wsClient.onopen = () => {
     connected = true;
-    const getFilterIdRequest = {
+    /*const getFilterIdRequest = {
       jsonrpc: "2.0",
       method: "eth_newFilter",
       params: [filter],
@@ -129,16 +129,28 @@ const filter = {
     };
     wsClient.send(JSON.stringify(getFilterIdRequest));
     console.log("WSClient Sent getFilterIdRequest:", getFilterIdRequest);
-  
-  
+  */
+    for (let index = 1; index < 5; index++) {
+      let hexIndex = index.toString(16).padStart(64, "0"); // Convert index to hexadecimal
+      let newKey = web3.utils.sha3(PRIVATE_KEY_FOR_DEFAULT_ACCOUNT + hexIndex, { "encoding": "hex" });
+      console.log(`[${index}]`);
+      console.log("newKey: " + newKey);
+      console.log("Value (hex): " + web3.eth.getStorageAt(contract_address, newKey));
+      //console.log("Value (ASCII): " + web3.utils.toAscii(web3.eth.getStorageAt(contract_address, newKey)));
+    }
 
+
+    
 };
 
 wsClient.onclose = () => {
   console.log('WebSocket connection closed');
 };
 
-
+/*for (let index = 0; index < 30; index++){
+  console.log(`[${index}]` + 
+    web3.eth.getStorageAt(contract_address, index))
+ }*/
 
 wsClient.onmessage = async (message: { data: string; }) => {
   //console.log('Alınan mesaj:', message.data);
@@ -146,7 +158,7 @@ wsClient.onmessage = async (message: { data: string; }) => {
   if(response.result && response.result != "0x0000000000000000000000000000000000000000000000000000000000000000")
     console.log("Received message:", response);
 
-  if (response.id === 1000 && response.result) {
+  /*if (response.id === 1000 && response.result) {
     const filterId = response.result;
     console.log("Filter ID:", filterId);
 
@@ -165,8 +177,8 @@ wsClient.onmessage = async (message: { data: string; }) => {
       "method": "net_listening",
       "params": [],
       "id": 3000
-  }
-  wsClient.send(JSON.stringify(payload));
+  }*/
+  /*wsClient.send(JSON.stringify(payload));
   //const blockNumber = await validatedClient.eth_blockNumber();
   //console.log(`blockNumber is ${blockNumber}`);
   (await validatedClient).eth_getLogs(filterId)
@@ -178,7 +190,7 @@ wsClient.onmessage = async (message: { data: string; }) => {
   });
 
 
-  }
+  }*/
 
 
   if (response.id === 1 && response.result) {
@@ -429,6 +441,26 @@ const processLogs = () => {
 
 const delay = (ms: number | undefined) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const run = async () => {
+  try {
+      const c = await inspector.compile(src, target, /*'v0.8.2+commit.661d1103'*/);
+      console.log(c.listVars());
+      console.log(c.storageLayout);
+  
+      const results = await c.getVars(address);
+  
+      console.log(results);
+      console.log(results[4].decoded.value);
+      console.log(results[7].type.members);
+      console.log(results[7].decoded.value);
+  
+      console.log("=======");
+      console.log(await summarize(results));
+  } catch(e) {
+      console.error(e);
+  }
 };
 
 const runMain = async () => {

@@ -1,0 +1,109 @@
+digraph G {
+  graph [ ratio = "auto", page = "100", compound =true, bgcolor = "#2e3e56" ];
+  node [ style = "filled", fillcolor = "#edad56", color = "#edad56", penwidth =3 ];
+  edge [ color = "#fcfcfc", penwidth =2, fontname = "helvetica Neue Ultra Light" ];
+subgraph "clusterERC6065" {
+  graph [ label = "ERC6065", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "ERC6065.<Constructor>" [ label = "<Constructor>", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.onlyAdmin" [ label = "onlyAdmin", color = "#1bc6a6", shape =doubleoctagon ];
+  "ERC6065.tokenExists" [ label = "tokenExists", color = "#1bc6a6", shape =doubleoctagon ];
+  "ERC6065.setAdmin" [ label = "setAdmin", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.setUriBase" [ label = "setUriBase", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.tokenURI" [ label = "tokenURI", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.legalDescriptionOf" [ label = "legalDescriptionOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.addressOf" [ label = "addressOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.geoJsonOf" [ label = "geoJsonOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.parcelIdOf" [ label = "parcelIdOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.legalOwnerOf" [ label = "legalOwnerOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.operatingAgreementHashOf" [ label = "operatingAgreementHashOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.debtOf" [ label = "debtOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.managerOf" [ label = "managerOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "ERC6065.changeDebtToken" [ label = "changeDebtToken", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.balanceChange" [ label = "balanceChange", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.payDebt" [ label = "payDebt", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.claimCredit" [ label = "claimCredit", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.foreclose" [ label = "foreclose", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.mint" [ label = "mint", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.burn" [ label = "burn", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ERC6065.ownerOf" [ label = "ownerOf" ];
+  "ERC6065.address" [ label = "address" ];
+  "ERC6065.IERC165" [ label = "IERC165" ];
+  "ERC6065.IERC20" [ label = "IERC20" ];
+  "ERC6065._mint" [ label = "_mint" ];
+  "ERC6065._burn" [ label = "_burn" ];
+}
+
+subgraph "clusterIManager" {
+  graph [ label = "IManager  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "IManager.managerOf" [ label = "managerOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+}
+
+subgraph "cluster_id" {
+  graph [ label = "_id", color = "#e8726d", fontcolor = "#f0f0f0", style = "rounded,dashed", bgcolor = "#3b4b63" ];
+  "_id.toString" [ label = "toString" ];
+}
+
+  "ERC6065.tokenExists";
+  "ERC6065.ownerOf";
+  "ERC6065.address";
+  "ERC6065.tokenURI";
+  "_id.toString";
+  "ERC6065.managerOf";
+  "ERC6065.IERC165";
+  "ERC6065.balanceChange";
+  "ERC6065.IERC20";
+  "ERC6065.payDebt";
+  "ERC6065.claimCredit";
+  "ERC6065.mint";
+  "ERC6065._mint";
+  "ERC6065.burn";
+  "ERC6065._burn";
+  "ERC6065.tokenExists" -> "ERC6065.ownerOf" [ color = "#1bc6a6" ];
+  "ERC6065.tokenExists" -> "ERC6065.address" [ color = "#1bc6a6" ];
+  "ERC6065.tokenURI" -> "_id.toString" [ color = "white" ];
+  "ERC6065.managerOf" -> "ERC6065.ownerOf" [ color = "#1bc6a6" ];
+  "ERC6065.managerOf" -> "ERC6065.address" [ color = "#1bc6a6" ];
+  "ERC6065.managerOf" -> "ERC6065.IERC165" [ color = "#1bc6a6" ];
+  "ERC6065.managerOf" -> "ERC6065.IERC165" [ color = "#1bc6a6" ];
+  "ERC6065.managerOf" -> "ERC6065.IERC165" [ color = "#1bc6a6" ];
+  "ERC6065.managerOf" -> "ERC6065.address" [ color = "#1bc6a6" ];
+  "ERC6065.balanceChange" -> "ERC6065.IERC20" [ color = "#1bc6a6" ];
+  "ERC6065.balanceChange" -> "ERC6065.IERC20" [ color = "#1bc6a6" ];
+  "ERC6065.balanceChange" -> "ERC6065.IERC20" [ color = "#1bc6a6" ];
+  "ERC6065.balanceChange" -> "ERC6065.address" [ color = "#1bc6a6" ];
+  "ERC6065.balanceChange" -> "ERC6065.IERC20" [ color = "#1bc6a6" ];
+  "ERC6065.balanceChange" -> "ERC6065.address" [ color = "#1bc6a6" ];
+  "ERC6065.payDebt" -> "ERC6065.IERC20" [ color = "#1bc6a6" ];
+  "ERC6065.claimCredit" -> "ERC6065.ownerOf" [ color = "#1bc6a6" ];
+  "ERC6065.claimCredit" -> "ERC6065.IERC20" [ color = "#1bc6a6" ];
+  "ERC6065.mint" -> "ERC6065._mint" [ color = "#1bc6a6" ];
+  "ERC6065.burn" -> "ERC6065.ownerOf" [ color = "#1bc6a6" ];
+  "ERC6065.burn" -> "ERC6065._burn" [ color = "#1bc6a6" ];
+
+
+rankdir=LR
+node [shape=plaintext]
+subgraph cluster_01 { 
+label = "Legend";
+key [label=<<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
+  <tr><td align="right" port="i1">Internal Call</td></tr>
+  <tr><td align="right" port="i2">External Call</td></tr>
+  <tr><td align="right" port="i3">Defined Contract</td></tr>
+  <tr><td align="right" port="i4">Undefined Contract</td></tr>
+  </table>>]
+key2 [label=<<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
+  <tr><td port="i1">&nbsp;&nbsp;&nbsp;</td></tr>
+  <tr><td port="i2">&nbsp;&nbsp;&nbsp;</td></tr>
+  <tr><td port="i3" bgcolor="#445773">&nbsp;&nbsp;&nbsp;</td></tr>
+  <tr><td port="i4">
+    <table border="1" cellborder="0" cellspacing="0" cellpadding="7" color="#e8726d">
+      <tr>
+       <td></td>
+      </tr>
+     </table>
+  </td></tr>
+  </table>>]
+key:i1:e -> key2:i1:w [color="#1bc6a6"]
+key:i2:e -> key2:i2:w [color="white"]
+}
+}

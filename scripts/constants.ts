@@ -3,7 +3,10 @@ import { AbiItem } from "web3-utils";
 import * as constants from "./constants.json";
 
 export let ALCHEMY_KEY = constants.ALCHEMY_KEY;
-/* ================ CHAIN PROVIDER ================== */
+/* ================ SAMPLE ADDRESSES ================== */
+export let SAMPLE_ADDRESS1 = constants.SAMPLE_ADDRESS1;
+export let SAMPLE_ADDRESS2 = constants.SAMPLE_ADDRESS2;
+    /* ================ CHAIN PROVIDER ================== */
 export let HARD_HAT_URL = constants.HARD_HAT_URL;
 export let GANACHE_URL = constants.GANACHE_URL;
 export let GOERLI_URL = constants.GOERLI_URL;
@@ -90,6 +93,51 @@ export const GOERLI_COMMUNITY_IMPLEMENTATION_ADDRESS =
     constants.GANACHE_TOKEN_IMPLEMENTATION_ADDRESS;
   export const GOERLI_TOKEN_IMPLEMENTATION_ADDRESS =
     constants.GOERLI_TOKEN_IMPLEMENTATION_ADDRESS;  
+    // /* =============== STORAGE INDEXES =============== */
+  export const HARD_HAT_STORAGE_1_INDEX =
+    constants.HARD_HAT_STORAGE_1_INDEX; 
+  export const PALM_STORAGE_1_INDEX =
+    constants.PALM_STORAGE_1_INDEX; 
+  export const AURORA_STORAGE_1_INDEX =
+    constants.AURORA_STORAGE_1_INDEX; 
+  export const GANACHE_STORAGE_1_INDEX =
+    constants.GANACHE_STORAGE_1_INDEX; 
+  export const GOERLI_STORAGE_1_INDEX =
+    constants.GOERLI_STORAGE_1_INDEX; 
+
+  export const HARD_HAT_STORAGE_2_INDEX =
+    constants.HARD_HAT_STORAGE_2_INDEX; 
+  export const PALM_STORAGE_2_INDEX =
+    constants.PALM_STORAGE_2_INDEX; 
+  export const AURORA_STORAGE_2_INDEX =
+    constants.AURORA_STORAGE_2_INDEX; 
+  export const GANACHE_STORAGE_2_INDEX =
+    constants.GANACHE_STORAGE_2_INDEX; 
+  export const GOERLI_STORAGE_2_INDEX =
+    constants.GOERLI_STORAGE_2_INDEX; 
+
+
+  export const HARD_HAT_STORAGE_3_INDEX =
+    constants.HARD_HAT_STORAGE_3_INDEX; 
+  export const PALM_STORAGE_3_INDEX =
+    constants.PALM_STORAGE_3_INDEX; 
+  export const AURORA_STORAGE_3_INDEX =
+    constants.AURORA_STORAGE_3_INDEX; 
+  export const GANACHE_STORAGE_3_INDEX =
+    constants.GANACHE_STORAGE_3_INDEX; 
+  export const GOERLI_STORAGE_3_INDEX =
+    constants.GOERLI_STORAGE_3_INDEX; 
+    
+  export const HARD_HAT_STORAGE_4_INDEX =
+    constants.HARD_HAT_STORAGE_4_INDEX; 
+  export const PALM_STORAGE_4_INDEX =
+    constants.PALM_STORAGE_4_INDEX; 
+  export const AURORA_STORAGE_4_INDEX =
+    constants.AURORA_STORAGE_4_INDEX; 
+  export const GANACHE_STORAGE_4_INDEX =
+    constants.GANACHE_STORAGE_4_INDEX; 
+  export const GOERLI_STORAGE_4_INDEX =
+    constants.GOERLI_STORAGE_4_INDEX; 
   //You can ignore the code below this line they are not used currently for this project
   // /* =============== PROVIDER =============== */
 
