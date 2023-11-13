@@ -10,9 +10,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import { IDecisionManagementImpl as MyIDecisionManagementImpl } from "../genericMultiChainDecisionManagement/IDecisionManagementImpl.sol";
 
 import "../genericMultiChainDecisionManagement/DecisionManagementProxy.sol";
-
 contract MultiChainCommunity is Ownable {
-   
+    //address public constant SAMPLE_ADDRESS1 = 0x6f8f6D4AEd9A94ca0d6DDBCE06482c6ed28bD95A;
+    //address public constant SAMPLE_ADDRESS2 = 0x6f8f6D4AEd9A94ca0d6DDBCE06482c6ed28bD95A;
+
     //IUtilityImpl.CommunityData public communityData;
     string public communityDataJson;
     string public operation;
@@ -29,6 +30,9 @@ contract MultiChainCommunity is Ownable {
     string[][] memberTags;
     mapping(uint256 => uint256) chainWeights; //chainId =>chainweight
     mapping(bytes => uint256) chainProposalWeights; //keccak (chainId + proposalId) =>chainProposalweight
+    mapping(bytes => uint256) memberProposalWeights; //keccak (accountID + chainId + proposalId) =>memberProposalweight
+    mapping(bytes => uint256) memberWeights; //keccak (accountID + chainId ) =>memberWeight
+    
     mapping(address => mapping(address => uint256)) public memberTokenBalances;
     MyIDecisionManagementImpl public decisionManagerImpl;
     UtilityImpl utilityImpl;
@@ -40,7 +44,31 @@ contract MultiChainCommunity is Ownable {
     string currentChainName;
     uint currentChainId;
 
-    constructor(uint communityId,string memory communityName, address _utilityProxyAddress, address _decisionManagerProxyAddress,address _parentCommunityAddress, uint _parentCommunityId,string[] memory _tags, uint chainID, string memory chainName) {
+    bytes32 constant public startingIndexOfValuesArrayMemberChainIdsInStorage = keccak256(abi.encode(11));
+    
+    function getElementIndexForMemberChainIdsInStorage(uint256 _elementIndex) public pure returns(bytes32) {
+        return bytes32(uint256(startingIndexOfValuesArrayMemberChainIdsInStorage) + _elementIndex);
+    }
+
+    bytes32 constant public startingIndexOfValuesArrayMemberAccountIdsInStorage = keccak256(abi.encode(10));
+    
+        function getElementIndexForMemberAccountIdsInStorage(uint256 _elementIndex) public pure returns(bytes32) {
+            return bytes32(uint256(startingIndexOfValuesArrayMemberAccountIdsInStorage) + _elementIndex);
+    }
+
+    bytes32 constant public startingIndexOfValuesArrayTagsInStorage = keccak256(abi.encode(12));
+    
+    function getElementIndexForMemberTagsInStorage(uint256 _rowIndex, uint256 _colIndex) public view returns(bytes32) {
+        
+         uint256 index = _rowIndex * memberTags[0].length + _colIndex;
+        return bytes32(uint256(startingIndexOfValuesArrayTagsInStorage) + index);
+    }
+    bytes32 constant public startingIndexOfValuesChainWeightsInStorage = keccak256(abi.encode(13));
+    
+    function getElementIndexForValuesChainWeightsInStorage(uint256 _elementIndex) public pure returns(bytes32) {
+        return bytes32(uint256(startingIndexOfValuesChainWeightsInStorage) + _elementIndex);
+    }
+    constructor(uint communityId,string memory communityName, address _utilityProxyAddress, address _decisionManagerProxyAddress,address _parentCommunityAddress, uint _parentCommunityId,string[] memory _tags,string memory _tagsJoined, uint chainID, string memory chainName, address SAMPLE_ADDRESS1, address SAMPLE_ADDRESS2) {
         utilityImpl = UtilityImpl(UtilityProxy(payable(_utilityProxyAddress)).implementation.address);
         decisionManagerImpl = MyIDecisionManagementImpl(DecisionManagementProxy(payable(_decisionManagerProxyAddress)).implementation.address);
         if (_parentCommunityAddress != address(0)){
@@ -54,7 +82,7 @@ contract MultiChainCommunity is Ownable {
 
         currentChainId = chainID;//utilityImpl.getChainId{gas: 1000000}();
         currentChainName = chainName; //utilityImpl.getChainName{gas: 1000000}(currentChainId);
-        setChainDefaultWeight(currentChainId, 2);
+        setChainDefaultWeight(currentChainId, 3);
         require(msg.sender != address(0), "Invalid account address");
         require(currentChainId > 0, "Invalid chain ID");
         require(_tags.length > 0, "At least one tag is required");
@@ -69,10 +97,49 @@ contract MultiChainCommunity is Ownable {
         communityDataJson = string.concat(communityDataJson, "|");
         communityDataJson = string.concat(communityDataJson, uintToString(currentChainId));        
         communityDataJson = string.concat(communityDataJson, "|");
+        communityDataJson = string.concat(communityDataJson,  _tagsJoined);
         operation = "+";
         operationAccount = addressToString(msg.sender);
 
-                
+        //for test purposes 
+        memberAccounts.push(SAMPLE_ADDRESS1);//sample address
+        memberChainIds.push(400);
+        /*string[] memory tags0=new string[](2);
+        tags0.push("tag2");
+        tags0.push("tag3");*/
+        memberTags.push(["tag2", "tag3"]);
+        //communityDataJson = string(abi.encodePacked(communityDataJson, "+", "|", addressToString(msg.sender), "|", uintToString(currentChainId), "|", tags)) gas(1000000);
+        communityDataJson = string.concat(communityDataJson, "+");
+        communityDataJson = string.concat(communityDataJson, "|");
+        communityDataJson = string.concat(communityDataJson, addressToString(SAMPLE_ADDRESS1));
+        communityDataJson = string.concat(communityDataJson, "|");
+        communityDataJson = string.concat(communityDataJson, uintToString(400));        
+        communityDataJson = string.concat(communityDataJson, "|");
+        communityDataJson = string.concat(communityDataJson, "tag2, tag3");
+        //communityDataJson = string.concat(communityDataJson,  stringJoin(tags0, ","));
+        operation = "+";
+        operationAccount = addressToString(SAMPLE_ADDRESS1);
+        
+    
+        //for test purposes 
+        memberAccounts.push(SAMPLE_ADDRESS2);//sample address
+        memberChainIds.push(500);
+        memberTags.push(["tag5", "tag1"]);
+        //communityDataJson = string(abi.encodePacked(communityDataJson, "+", "|", addressToString(msg.sender), "|", uintToString(currentChainId), "|", tags)) gas(1000000);
+        communityDataJson = string.concat(communityDataJson, "+");
+        communityDataJson = string.concat(communityDataJson, "|");
+        communityDataJson = string.concat(communityDataJson, addressToString(SAMPLE_ADDRESS2));
+        communityDataJson = string.concat(communityDataJson, "|");
+        communityDataJson = string.concat(communityDataJson, uintToString(500));        
+        communityDataJson = string.concat(communityDataJson, "|");
+        /*string[] memory tags1;
+        tags1[0] = "tag5";
+        tags1[1] = "tag1";*/
+        communityDataJson = string.concat(communityDataJson,  "tag5, tag1");
+        //communityDataJson = string.concat(communityDataJson,  stringJoin((tags1), ","));
+        operation = "+";
+        operationAccount = addressToString(SAMPLE_ADDRESS2);
+        console.log("Number of members", memberAccounts.length);
     }
     function bytesToHex(bytes memory data) internal pure returns (string memory) {
         bytes memory hexChars = "0123456789abcdef";
@@ -149,7 +216,7 @@ contract MultiChainCommunity is Ownable {
     }  
 
     event MemberAdded(address account, uint chainId, string[] tags);
-    function addMember(address account, uint chainId, string[] memory tags)public onlyOwner returns (string memory result) {
+    function addMember(address account, uint chainId, string[] memory tags)public returns (string memory result) {
         console.log('Adding member');
         
         require(account != address(0), "Invalid account address");
@@ -177,7 +244,7 @@ contract MultiChainCommunity is Ownable {
     }
 
     event MemberRemoved(address account, uint chainId);
-    function removeMember(address account, uint chainId) public onlyOwner returns (string memory result) {
+    function removeMember(address account, uint chainId) public returns (string memory result) {
         console.log('Removing member');
 
         uint256 indexToRemove;
@@ -221,6 +288,16 @@ contract MultiChainCommunity is Ownable {
         bytes memory key = abi.encodePacked(chainId, proposalId);
         chainProposalWeights[key] = weight;
     }
+    function setMemberProposalWeights(address account, uint chainId, uint proposalId, uint256 weight) public onlyOwner{
+        bytes memory key = abi.encodePacked(account, chainId, proposalId);
+        memberProposalWeights[key] = weight;
+    }
+    
+    function setMemberWeights(address account, uint chainId, uint256 weight) public onlyOwner{
+        bytes memory key = abi.encodePacked(account, chainId);
+        memberWeights[key] = weight;
+    }
+
     function isMember(address account, uint chainId) public view returns (bool) {
         for (uint i = 0; i < memberAccounts.length; i++) {
             if (memberAccounts[i] == account && memberChainIds[i] == chainId) {
@@ -283,9 +360,12 @@ function createProposal(
         // Check if the chain of the voter has voting weight
         //require(communityData.chainWeights[utilityImpl.getChainId()] > 0 || communityData.chainProposalWeights[abi.encodePacked(utilityImpl.getChainId(), proposalId)] > 0, "Voting weight of the chain is 0.");
         require(chainWeights[utilityImpl.getChainId()] > 0 || chainProposalWeights[abi.encodePacked(utilityImpl.getChainId(), proposalBasicData.proposalId)] > 0, "Voting weight of the chain is 0.");
-     
-
-
+        bytes memory memberChainProposalKey = abi.encodePacked(msg.sender, utilityImpl.getChainId(), proposalBasicData.proposalId);
+        if(memberProposalWeights[memberChainProposalKey] >= 0)
+            console.log( "Member weight on the proposal is not set yet.");
+        bytes memory memberChainKey = abi.encodePacked(msg.sender, utilityImpl.getChainId());
+        if(memberWeights[memberChainKey] >= 0)
+            console.log( "Member weight on the chain is not set yet.");
         require(proposalBasicData.proposalCommunityRestriction == uint(IUtilityImpl.CommunityRestriction.All) ||
                 (proposalBasicData.proposalCommunityRestriction == uint(IUtilityImpl.CommunityRestriction.OnlyProposingCommunity) && proposalBasicData.proposingCommunityId == id) ||
                 (proposalBasicData.proposalCommunityRestriction == uint(IUtilityImpl.CommunityRestriction.OnlyProposingAndChildren) && (proposalBasicData.proposingCommunityId == id || proposalBasicData.proposingCommunityId == parentCommunityId) ||
@@ -295,6 +375,10 @@ function createProposal(
             );
         //uint256 chainCurrentVotingWeight = communityData.chainWeights[utilityImpl.getChainId()];
         uint256 chainCurrentVotingWeight = chainWeights[utilityImpl.getChainId()];        
+        bytes memory chainProposalKey = abi.encodePacked(utilityImpl.getChainId(), proposalBasicData.proposalId);
+        uint256 chainCurrentProposalVotingWeight = chainProposalWeights[chainProposalKey];
+
+
         IUtilityImpl.Vote memory vote;
         vote.voteId = utilityImpl.generateUniqueId();
         vote.proposalId = proposalBasicData.proposalId;
@@ -303,6 +387,15 @@ function createProposal(
         vote.voterAddress = msg.sender;
         vote.voterChainId = utilityImpl.getChainId();
         vote.chainCurrentVotingWeight = chainCurrentVotingWeight;
+        vote.chainCurrentProposalVotingWeight = chainCurrentProposalVotingWeight;
+
+  if(memberProposalWeights[memberChainProposalKey] >= 0)
+            console.log( "Member weight on the proposal is not set yet.");
+        memberChainKey = abi.encodePacked(msg.sender, utilityImpl.getChainId());
+        if(memberWeights[memberChainKey] >= 0)
+            console.log( "Member weight on the chain is not set yet.");
+
+
 
 
         decisionManagerImpl.vote(vote, id);
@@ -360,7 +453,7 @@ function createProposal(
 }
 */
 // Helper functions for converting values to string
-/*function stringJoin(string[] memory strings, string memory delimiter) internal pure returns (string memory) {
+function stringJoin(string[] memory strings, string memory delimiter) internal pure returns (string memory) {
     if (strings.length == 0) {
         return "";
     }
@@ -372,7 +465,7 @@ function createProposal(
     
     return joinedString;
 }
-*/
+
 function uintToString(uint256 value) internal pure returns (string memory) {
     return Strings.toString(value);
 }
